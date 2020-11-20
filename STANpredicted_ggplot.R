@@ -7,9 +7,12 @@ library(dplyr)
 setwd("c:/R_PROJECTS/STANpredictedggplot")
 YBCU <- read.table("Laymon_NestdataforSTAN7.txt", 
                    header=TRUE, sep="", na.strings="NA", dec=".", strip.white=TRUE)
+
+freq_model<-glm(YBCU$use~YBCU$treecovp,family = binomial)
+
 names(YBCU)
 
-cuckoolist1 <- list      (Ni   = nrow(YBCU),
+cuckoolist1 <- list      (N   = nrow(YBCU),
                           use     = YBCU$use,
                           treecovp = YBCU$treecovp
                       )
@@ -23,10 +26,21 @@ fit1 <- stan( file = 'YBCU1var.stan',
               control = list(adapt_delta = 0.99, max_treedepth = 15)
 )                                    
 #use this to assess convergence (change fit to appropriate model before running)
-print(fit1,probs=c(0.075, 0.5, 0.925),pars = c("beta_0","beta_1","oddsintercept","oddsbeta1"))
+print(fit1,probs=c(0.075, 0.5, 0.925),pars = c("beta_0","beta_1","oddsintercept","oddsbeta1","prob"))
 pairs(fit1,pars = c("beta_0","beta_1"))
 traceplot(fit1,pars = c("beta_0", "beta_1"),inc_warmup = FALSE)
+fit1_samples = extract(fit1)
 
+
+
+str(fit1_samples)
+betas = fit1_samples[[2]]
+alpha = fit1_samples[[1]]
+predicted = fit1_samples[[]]
+
+qplot(betas)
+qplot(alpha)
+traceplot(fit1)
 
 
 
