@@ -28,13 +28,14 @@ fit1 <- stan( file = 'YBCU1var.stan',
               control = list(adapt_delta = 0.99, max_treedepth = 15)
 )                                    
 #use this to assess convergence (change fit to appropriate model before running)
-print(fit1,probs=c(0.075, 0.5, 0.925),pars = c("beta0","beta1", "y_new"))
+print(fit1,probs=c(0.075, 0.5, 0.925),pars = c("beta0","beta1","prob"))
 pairs(fit1,pars = c("beta0","beta1"))
 traceplot(fit1,pars = c("beta_0", "beta_1"),inc_warmup = FALSE)
 library(tidybayes)
 #get the draws
 fit1_samples = extract(fit1)
 #see where predictions are in the list
+
 str(fit1_samples)
 #predictions are #3
 predicted <- fit1_samples[[3]]
@@ -53,6 +54,9 @@ ggplot(new_frame,aes(x=x,y=y))+
   #geom_smooth(se = TRUE,level = 0.85,color = "black")+
       stat_lineribbon() 
 #.width = c(.50, .80, .95)
+
+
+
 ##frequentist
 ggplot(YBCU, aes(treecovp, use)) +  ##arguements are data, x, y
   theme_bw()+
