@@ -38,9 +38,78 @@ pairs(fit1,pars = c("beta_0","beta_1"))
 traceplot(fit1,pars = c("beta_0", "beta_1"),inc_warmup = FALSE)
 
 ##########################################################################
-####     FUNCTION to make Bayeisan logistic predicted ggplots   ##########
-##########################################################################
+####     FUNCTION to make a dataframe from extracted draws   ##########
+#  arguements, fit = name of fit, N = number of data points, xvar = variable to plot, sites = levels variable 
+###########################################################################
+extract.draws<- function(fit,N,xvar,sites){
+  #get the draws
+  fit1_samples = extract(fit)
+  predicted <- fit1_samples[[7]]
+  m_predict <- matrix(0,nrow=N, ncol = 5)
+  for (i in 1:N) {
+    m_predict[i,1]<- xvar[i]
+    m_predict[i,2]<- mean(predicted[,i])
+    m_predict[i,3]<- quantile(predicted[,i],probs= 0.025) 
+    m_predict[i,4]<- quantile(predicted[,i],probs= 0.975) 
+    m_predict[i,5]<- sites[i]
+      }
+  new_frame<-as.data.frame(m_predict)
+  colnames(new_frame) = c("treecov","meanPr","lower","upper","site")
+  return (new_frame)
+}
 
+data.pred <- extract.draws(fit=fit1,N=cuckoolist1$Ni,xvar=cuckoolist1$treecovp, sites=cuckoolist1$site)
+
+###############################################################################
+###########  function to plot the draws
+#######################################################################
+#df = dataframe with summaries of draws from extract.draws produced by extract.draws
+#x = x variable from dataframe of draws, y = meanPr
+#sites are the levels from the dataframe
+#x2 and y2 are for the original data points (0 and 1) to show on the plot 
+#label is x label
+Bayes.plot<- function(df,x,y,sites,x2,y2,label){
+    plot<-ggplot(df,aes(x,y))+
+    theme_bw()+
+    geom_point(aes(x,y,color = sites))+
+    geom_line(aes(group=sites))+
+    geom_point(aes(x2,y2,color=sites),size = 1,alpha = 1/2) +
+    geom_jitter(aes(x2,y2),width = 0, height = .02, alpha = 0.5)+ 
+    geom_ribbon(aes(ymin=lower, ymax=upper, group = site), alpha=0.2)+
+    #theme(legend.text = element_text(size = 13),legend.position=c(0.2, 0.8),legend.title =element_blank())+
+    labs(title = "", x = label, y = "Probability of use")+
+    theme(axis.text.x = element_text(angle = 0, hjust = 0, size=12,color="black"))+
+    theme(axis.text.y = element_text(angle = 0, hjust = 0, size=12,color="black"))+
+    theme(axis.title.y = element_text(size = rel(1.4), angle = 90))+
+    theme(axis.title.x = element_text(size = rel(1.4), angle = 00))+
+    theme(plot.margin=unit(c(1,1,1.5,1.2),"cm"))+
+     ylim(0, 1)+
+    xlim(0,1)
+  return(plot)
+  }
+
+Bayes.plot(df=data.pred,x=data.pred$treecov, y = data.pred$meanPr,
+           sites = data.pred$site, x2=YBCU$treecovp, y2=YBCU$use,label = "Tree Cover 5m (%)")
+
+
+  
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+#######################################################################
+#########  original code template  #######################################
+####################################################################
 #get the draws
 fit1_samples = extract(fit1)
 #see where predictions are in the list
@@ -63,7 +132,7 @@ new_frame<-as.data.frame(m_predict)
 colnames(new_frame) = c("treecov","meanPr","lower","upper","site")
 
 
-ggplot(new_frame,aes(x=treecov,y=meanPr))+
+ggplot(data.pred,aes(x=treecov,y=meanPr))+
   theme_bw()+
   geom_point(aes(x=treecov,y=meanPr,color = site))+
   geom_line(aes(group=site))+
