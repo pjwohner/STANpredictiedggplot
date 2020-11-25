@@ -20,6 +20,6 @@ model {
 generated quantities {
 
 vector[N] y_hat;
-for (n in 1:N)
+for (n in 1:N){
 y_hat[n] = inv_logit(beta0 + beta1 *treecovp[n]);
 }
