@@ -2,9 +2,7 @@ data {
   int<lower=0> N;//number of observations
   vector[N] treecovp;//dependednt variable
   int<lower = 0, upper = 1> use[N];//declare the y variable as binary
-  int<lower = 0> N_hat; //new number of precicted
-  vector[N_hat] x_hat; //predicted range of x values
-}
+  }
 
 parameters {
   real beta0;
@@ -21,7 +19,7 @@ model {
 
 generated quantities {
 
-vector[N_hat] y_hat;
-for (n in 1:N_hat)
-y_hat[n] = inv_logit(beta0 + beta1 *x_hat[n]);
+vector[N] y_hat;
+for (n in 1:N)
+y_hat[n] = inv_logit(beta0 + beta1 *treecovp[n]);
 }
