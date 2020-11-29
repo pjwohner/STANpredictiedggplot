@@ -35,7 +35,7 @@ fit1 <- stan( file = 'Hier1Var.stan',
 #use this to assess convergence (change fit to apropriate model before running)
 print(fit1,probs=c(0.075, 0.5, 0.925),pars = c("beta_0","beta_1","beta_0j","y_hat"))
 pairs(fit1,pars = c("beta_0","beta_1"))
-traceplot(fit1,pars = c("beta_0", "beta_1"),inc_warmup = FALSE)
+traceplot(fit1, pars = c("beta_0", "beta_1"),inc_warmup = FALSE)
 
 ##########################################################################
 ####     FUNCTION to make a dataframe from extracted draws   ##########
@@ -72,10 +72,10 @@ Bayes.plot<- function(df,x,y,sites,x2,y2,label){
     plot<-ggplot(df,aes(x,y))+
     theme_bw()+
     geom_point(aes(x,y,color = sites))+
-    geom_line(aes(group=sites))+
+    geom_line(aes(group=sites,color=sites))+
     geom_point(aes(x2,y2,color=sites),size = 1,alpha = 1/2) +
     geom_jitter(aes(x2,y2),width = 0, height = .02, alpha = 0.5)+ 
-    geom_ribbon(aes(ymin=lower, ymax=upper, group = site), alpha=0.2)+
+    geom_ribbon(aes(ymin=lower, ymax=upper, group = sites, fill = sites), alpha=0.2)+
     #theme(legend.text = element_text(size = 13),legend.position=c(0.2, 0.8),legend.title =element_blank())+
     labs(title = "", x = label, y = "Probability of use")+
     theme(axis.text.x = element_text(angle = 0, hjust = 0, size=12,color="black"))+
@@ -83,7 +83,7 @@ Bayes.plot<- function(df,x,y,sites,x2,y2,label){
     theme(axis.title.y = element_text(size = rel(1.4), angle = 90))+
     theme(axis.title.x = element_text(size = rel(1.4), angle = 00))+
     theme(plot.margin=unit(c(1,1,1.5,1.2),"cm"))+
-     ylim(0, 1)+
+    ylim(0,1)+
     xlim(0,1)
   return(plot)
   }
